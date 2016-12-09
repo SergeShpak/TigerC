@@ -5,9 +5,11 @@
 #include "../../include/functional_datastructures/utils.h"
 
 static void purge_shallow_payload(bst* tree);
-static void get_ids_internal(bst *tree, char **nodes_ids, int *nodes_ctr); 
-static void quicksort(char *str, int p, int r);
-static int partition(char *str, int p, int r);
+static void get_ids_internal(bst *tree, char **nodes_ids, size_t *nodes_ctr); 
+static void quicksort(char *str, size_t p, size_t r);
+static size_t partition(char *str, size_t p, size_t r);
+static void fill_predecessor_pairs(bst *tree, 
+                  struct pair **nodes_with_predecessors, size_t *acc_counter);
 
 char *get_random_id(int min_id_length, int max_id_length) {
   const char *id_chars = "0123456789absdefghijhklmnopqrstuvwxyz";
@@ -70,7 +72,7 @@ void purge_bst(bst *tree) {
 }
 
 char **get_ids(bst *tree) {
-  int *nodes_ctr = (int *) malloc(sizeof(int));
+  size_t *nodes_ctr = (size_t *) malloc(sizeof(size_t));
   *nodes_ctr = 0;
   count_nodes(tree, nodes_ctr);
   char **nodes_ids = (char**) malloc(sizeof(char*) * (*nodes_ctr + 1));
@@ -81,8 +83,9 @@ char **get_ids(bst *tree) {
   return nodes_ids;
 }
 
-void count_nodes(bst *tree, int *acc) {
+void count_nodes(bst *tree, size_t *acc) {
   if (NULL == tree) {
+    *acc = 0;
     return;
   } 
   (*acc)++;
@@ -110,30 +113,56 @@ bst *get_tree(char *ids_string) {
   return tree;
 }
 
-void sort_chars(char* str) {
-  int len = strlen(str);
+void sort_chars_asc(char* str) {
+  size_t len = strlen(str);
   quicksort(str, 0, len - 1); 
 }
 
-void quicksort(char *str, int p, int r) {
-  if (p >= r) {
-    return;
+size_t find_in_sorted_asc(char target, char *str) {
+  size_t len = strlen(str);
+  if (1 == len) {
+    if (str[0] == target) {
+      return 0;
+    }
+    return -1;
   }
-  int q = partition(str, p, r);
-  quicksort(str, p, q - 1);
-  quicksort(str, p, q + 1); 
+  size_t lower_bound = 0, upper_bound = len;
+  while(1 == 1) {
+    if (lower_bound == upper_bound) {
+      return -1;
+    }
+    size_t mid = (upper_bound + lower_bound) / 2;
+    if (str[mid] == target) {
+      return mid;
+    } 
+    if (str[mid] > target) {
+      upper_bound = mid;
+      continue;
+    }
+    if (str[mid] < target) {
+      lower_bound = mid;
+      continue; 
+    }
+  }  
 }
 
-int partition(char *str, int p, int r) {
-  char x = str[r];
-  int i = p - 1;
+struct pair **get_nodes_predecessors(bst *tree) {
+  size_t *nodes_count = (size_t *) malloc(sizeof(size_t));
+  count_nodes(tree, nodes_count);
+  struct pair **nodes_with_predecessors 
+                        = (struct pair **) malloc(sizeof(struct pair**) + 1);
+  *nodes_count = 0;
+  fill_predecessor_pairs(tree, nodes_with_predecessors, nodes_count);
+  nodes_with_predecessors[*nodes_count] = NULL;
+  free(nodes_count);
+  return nodes_with_predecessors;
 }
 
 // ****************************************************************************
 // Static functions
 // ****************************************************************************
 
-void get_ids_internal(bst *tree, char **nodes_ids, int *nodes_ctr) {
+void get_ids_internal(bst *tree, char **nodes_ids, size_t *nodes_ctr) {
   if (NULL == tree) {
     return;
   }
@@ -161,6 +190,45 @@ void purge_shallow_payload(bst *tree) {
     free(tree->payload);
     tree->payload = NULL;
   }
+}
+
+void quicksort(char *str, size_t p, size_t r) {
+  if (p >= r) {
+    return;
+  }
+  size_t q = partition(str, p, r);
+  quicksort(str, p, q - 1);
+  quicksort(str, p, q + 1); 
+}
+
+size_t partition(char *str, size_t p, size_t r) {
+  char x = str[r];
+  size_t i = p - 1;
+  for (size_t j = p; j < r; j++) {
+    if (str[j] < x) {
+      i++;
+      char tmp = str[i];
+      str[i] = str[j];
+      str[j] = tmp; 
+    }
+  }
+  i++;
+  char tmp = str[i];
+  str[i] = str[r];
+  str[r] = tmp;
+  return i;
+}
+
+void fill_predecessor_pairs(bst *tree, struct pair **nodes_with_predecessors,
+                            size_t *acc_counter) {
+  if (NULL == tree) {
+    return;
+  }
+  nodes_with_predecessors[*acc_counter]->node = tree;
+  nodes_with_predecessors[*acc_counter]->paired_node = bst_predecessor(tree);
+  (*acc_counter)++;
+  fill_predecessor_pairs(tree->left, nodes_with_predecessors, acc_counter);
+  fill_predecessor_pairs(tree->right, nodes_with_predecessors, acc_counter);
 }
 
 // ****************************************************************************

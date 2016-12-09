@@ -10,8 +10,6 @@
 #define   true  ((1 == 1))
 #define   false ((!true))
 
-static int is_predecessor(bst *node, char *sorted_ids);
-
 void setUp() {
   srand(time(NULL));
 }
@@ -126,13 +124,25 @@ void test_bst_minimum_ReturnsNULLIfTreeIsNULL(void) {
 
 void test_bst_predecessor_ReturnsNodePredecessor(void) {
   char *ids_str = "abcdefg";
-  bst *tree = get_tree("abcdef");
-  sort_chars(ids_str);
-  if (NULL == tree) {
-    return;
+  bst *tree = get_tree(ids_str);
+  sort_chars_asc(ids_str);
+  struct pair **nodes_with_predecessors = get_nodes_predecessors(tree);
+  int pair_index = 0;
+  struct pair *curr_pair = nodes_with_predecessors[pair_index];
+  while (NULL != curr_pair) {
+    if (NULL == curr_pair->paired_node) {
+      TEST_ASSERT_TRUE(ids_str[0] == curr_pair->node->id[0]); 
+    } 
+    if (NULL != curr_pair->paired_node) { 
+      char *node_id = curr_pair->node->id;
+      char *predecessor_id = curr_pair->paired_node->id;
+      size_t node_id_index = find_in_sorted_asc(node_id[0], ids_str);
+      TEST_ASSERT_TRUE(ids_str[node_id_index - 1] == predecessor_id[0]);
+    } 
+    pair_index++;
+    curr_pair = nodes_with_predecessors[pair_index]; 
   }
-  bst *root_predecessor = bst_predecessor(tree);
-  TEST_ASSERT_EQUAL_STRING("c", root_predecessor->id);
+  purge_bst(tree);
 }
 
 int main(int argc, char **argv) {

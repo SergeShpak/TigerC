@@ -22,11 +22,12 @@ bst *get_random_tree(int min_nodes_count, int max_nodes_count,
 struct int_wrap *get_rand_int_wrap_payload(void);
 struct int_wrap *get_int_wrap_payload(int payload);
 void purge_bst(bst *tree);
-void count_nodes(bst *tree, int *acc);
+void count_nodes(bst *tree, size_t *acc);
 char **get_ids(bst *tree);
 int check_predecessors(bst *tree, int *valid_indicator);
 bst *get_tree(char *ids_string);
-void sort_chars(char *str);
-void get_nodes_predecessors(bst *tree, struct pair **pairs);
+void sort_chars_asc(char *str);
+struct pair **get_nodes_predecessors(bst *tree);
+size_t find_in_sorted_asc(char target, char *str);
 
 #endif
