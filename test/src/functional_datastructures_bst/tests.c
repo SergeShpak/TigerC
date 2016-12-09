@@ -145,6 +145,42 @@ void test_bst_predecessor_ReturnsNodePredecessor(void) {
   purge_bst(tree);
 }
 
+void test_bst_predecessor_ReturnsNULLIfTreeIsNULL(void) {
+  bst *tree = NULL;
+  bst *predecessor = bst_predecessor(tree);
+  TEST_ASSERT_NULL(predecessor);
+}
+
+void test_bst_successor_RetursNodeSuccessor(void) {
+  char *ids_str = "abcdefg";
+  bst *tree = get_tree(ids_str);
+  sort_chars_asc(ids_str);
+  struct pair **nodes_with_successors = get_nodes_successors(tree);
+  int pair_index = 0;
+  struct pair *curr_pair = nodes_with_successors[pair_index];
+  while (NULL != curr_pair) {
+    if (NULL == curr_pair->paired_node) {
+      size_t len_ids_str = strlen(ids_str);
+      TEST_ASSERT_TRUE(ids_str[len_ids_str] == curr_pair->node->id[0]); 
+    } 
+    if (NULL != curr_pair->paired_node) { 
+      char *node_id = curr_pair->node->id;
+      char *successor_id = curr_pair->paired_node->id;
+      size_t node_id_index = find_in_sorted_asc(node_id[0], ids_str);
+      TEST_ASSERT_TRUE(ids_str[node_id_index + 1] == successor_id[0]);
+    } 
+    pair_index++;
+    curr_pair = nodes_with_successors[pair_index]; 
+  }
+  purge_bst(tree);
+}
+
+void test_bst_successor_ReturnsNULLIfTreeIsNULL(void) {
+  bst *tree = NULL;
+  bst *successor = bst_successor(tree);
+  TEST_ASSERT_NULL(successor);
+}
+
 int main(int argc, char **argv) {
   UNITY_BEGIN();
   RUN_TEST(test_bst_create_CreatesNode);

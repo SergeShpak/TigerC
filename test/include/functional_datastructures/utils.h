@@ -28,6 +28,7 @@ int check_predecessors(bst *tree, int *valid_indicator);
 bst *get_tree(char *ids_string);
 void sort_chars_asc(char *str);
 struct pair **get_nodes_predecessors(bst *tree);
+struct pair **get_nodes_successors(bst *tree);
 size_t find_in_sorted_asc(char target, char *str);
 
 #endif

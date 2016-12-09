@@ -2,12 +2,19 @@
 #define FUNCTIONAL_DATASTRUCTURES_BST_H
 
 typedef struct _bst bst;
+enum color;
+
+enum color {
+  RED,
+  BLACK
+};
 
 struct _bst {
   char *id;
   bst *parent;
   bst *left, *right;
   void *payload;
+  enum color color;
 };
 
 bst *bst_create(char *id, void *payload);
