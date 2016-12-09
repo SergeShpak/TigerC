@@ -13,6 +13,7 @@ bst *bst_create(char *bst_id, void *bst_payload) {
 }
 
 bst *bst_search(char *bst_id, bst *bst_tree) {
+  
   return NULL;
 }
 
