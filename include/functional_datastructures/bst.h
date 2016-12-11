@@ -23,8 +23,9 @@ bst *bst_minimum(bst *tree);
 bst *bst_maximum(bst *tree);
 bst *bst_predecessor(bst *tree);
 bst *bst_successor(bst *tree);
-bst *bst_insert(bst *tree, bst *dest_tree);
-bst *bst_delete(bst *tree, char *id);
+void bst_insert(bst *tree, bst *dest_tree);
+void bst_delete(bst *tree, char *id);
+int bst_compare_nodes(bst *first, bst *second);
 void bst_free(bst *tree);
 
 #endif
