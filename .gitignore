@@ -6,3 +6,6 @@ build/
 *.swp
 ./**/*.swp
 test/tests/
+.idea
+**/.idea
+cmake-build-debug/

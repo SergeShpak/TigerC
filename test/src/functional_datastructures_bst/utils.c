@@ -4,14 +4,14 @@
 
 #include "../../include/functional_datastructures/utils.h"
 
-static void purge_shallow_payload(bst* tree);
-static void get_ids_internal(bst *tree, char **nodes_ids, size_t *nodes_ctr); 
+static void purge_shallow_payload(node* tree);
+static void get_ids_internal(node *tree, char **nodes_ids, size_t *nodes_ctr); 
 static void quicksort(char *str, size_t p, size_t r);
 static size_t partition(char *str, size_t p, size_t r);
-static struct pair **allocate_pairs(bst *tree); 
-static void fill_pairs(bst *tree, struct pair **nodes_with_successors, 
-                        size_t *acc_counter, bst* (*pair_choosing_func)(bst*));
-static struct pair **get_pairs(bst *tree, bst *(pair_choosing_func)(bst*));
+static struct pair **allocate_pairs(node *n); 
+static void fill_pairs(node *, struct pair **nodes_with_successors, 
+                      size_t *acc_counter, node* (*pair_choosing_func)(node*));
+static struct pair **get_pairs(node *n, node *(pair_choosing_func)(node*));
 
 char *get_random_id(int min_id_length, int max_id_length) {
   const char *id_chars = "0123456789absdefghijhklmnopqrstuvwxyz";
@@ -20,9 +20,9 @@ char *get_random_id(int min_id_length, int max_id_length) {
   int id_length 
             = (rand() % (max_id_length + 1 - min_id_length)) + min_id_length;
   char *id = (char*) malloc(sizeof(char) * (id_length + 1));
-  int id_chars_length = strlen(id_chars);
+  size_t id_chars_length = strlen(id_chars);
   for (int i = 0; i < id_length; i++) {
-    int rand_idx = rand() % id_chars_length;
+    size_t rand_idx = rand() % id_chars_length;
     id[i] = id_chars[rand_idx]; 
   }
   id[id_length] = '\0';
@@ -35,11 +35,11 @@ bst *get_random_tree(int min_nodes_count, int max_nodes_count,
   assert(max_nodes_count >= min_nodes_count);
   int number_of_nodes 
         = (rand() % (max_nodes_count + 1 - min_nodes_count)) + min_nodes_count;
-  bst *tree = NULL;
+  bst *tree = bst_create();
   for (int i = 0; i < number_of_nodes; i++) {
     char *id = get_random_id(min_id_length, max_id_length);
     struct int_wrap *payload = get_rand_int_wrap_payload(); 
-    bst *node = bst_create(id, payload);
+    node *node = bst_node_create(id, payload);
     bst_insert(node, tree);
   }
   return tree;
@@ -56,60 +56,60 @@ struct int_wrap *get_int_wrap_payload(int payload) {
   return wrap;
 }
 
-void purge_bst(bst *tree) {
-  if (NULL == tree) {
+void purge_bst(node *n) {
+  if (NULL == n) {
     return;
   }
-  purge_shallow_payload(tree);
-  if (NULL != tree->left) {
-    purge_bst(tree->left);
+  purge_shallow_payload(n);
+  if (NULL != n->left) {
+    purge_bst(n->left);
   }
-  if (NULL != tree->right) {
-    purge_bst(tree->right);
+  if (NULL != n->right) {
+    purge_bst(n->right);
   }
-  if (NULL != tree->id) {
-    free(tree->id);
+  if (NULL != n->id) {
+    free(n->id);
   }
-  free(tree);
+  return;
 }
 
-char **get_ids(bst *tree) {
+char **get_ids(node *n) {
   size_t *nodes_ctr = (size_t *) malloc(sizeof(size_t));
   *nodes_ctr = 0;
-  count_nodes(tree, nodes_ctr);
+  count_nodes(n, nodes_ctr);
   char **nodes_ids = (char**) malloc(sizeof(char*) * (*nodes_ctr + 1));
   nodes_ids[*nodes_ctr] = NULL;
   *nodes_ctr = 0;
-  get_ids_internal(tree, nodes_ids, nodes_ctr);
+  get_ids_internal(n, nodes_ids, nodes_ctr);
   free(nodes_ctr);
   return nodes_ids;
 }
 
-void count_nodes(bst *tree, size_t *acc) {
-  if (NULL == tree) {
+void count_nodes(node *n, size_t *acc) {
+  if (NULL == n) {
     *acc = 0;
     return;
   } 
   (*acc)++;
-  if (NULL != tree->left) {
-    count_nodes(tree->left, acc);
+  if (NULL != n->left) {
+    count_nodes(n->left, acc);
   }
-  if (NULL != tree->right) {
-    count_nodes(tree->right, acc);
+  if (NULL != n->right) {
+    count_nodes(n->right, acc);
   }
 }
 
-bst *get_tree(char *ids_string) {
+bst *create_tree_with_ids(char *ids_string) {
   int len_str = strlen(ids_string);
   if (0 == len_str) {
     return NULL;
   }
-  bst *tree = NULL;
+  bst *tree = bst_create();
   for (int i = 0; i < len_str; i++) {
     char *current_id = (char*) malloc(sizeof(char) + 1);
     current_id[0] = ids_string[i];
     current_id[1] = '\0';
-    bst *node = bst_create(current_id, NULL);
+    node *node = bst_node_create(current_id, NULL);
     bst_insert(node, tree);
   }
   return tree;
@@ -148,45 +148,53 @@ size_t find_in_sorted_asc(char target, char *str) {
   }  
 }
 
-struct pair **get_nodes_predecessors(bst *tree) { 
-  return get_pairs(tree, bst_predecessor);
+struct pair **get_nodes_predecessors(node *n) { 
+  return get_pairs(n, bst_predecessor);
 }
 
-struct pair **get_nodes_successors(bst *tree) {
-  return get_pairs(tree, bst_successor);
+struct pair **get_nodes_successors(node *n) {
+  return get_pairs(n, bst_successor);
+}
+
+char *allocate_str(char *str_to_duplicate) {
+  int len = strlen(str_to_duplicate);
+  char *str = (char*) malloc(sizeof(char) * (len + 1));
+  strncpy(str, str_to_duplicate, len);
+  str[len + 1] = '\0';
+  return str;
 }
 
 // ****************************************************************************
 // Static functions
 // ****************************************************************************
 
-void get_ids_internal(bst *tree, char **nodes_ids, size_t *nodes_ctr) {
-  if (NULL == tree) {
+void get_ids_internal(node *n, char **nodes_ids, size_t *nodes_ctr) {
+  if (NULL == n) {
     return;
   }
-  nodes_ids[*nodes_ctr] = tree->id;
+  nodes_ids[*nodes_ctr] = n->id;
   (*nodes_ctr)++;
-  if (NULL != tree->left) {
-    get_ids_internal(tree->left, nodes_ids, nodes_ctr);
+  if (NULL != n->left) {
+    get_ids_internal(n->left, nodes_ids, nodes_ctr);
   }
-  if (NULL != tree->right) {
-    get_ids_internal(tree->right, nodes_ids, nodes_ctr);
+  if (NULL != n->right) {
+    get_ids_internal(n->right, nodes_ids, nodes_ctr);
   }
 }
 
-void purge_shallow_payload(bst *tree) {
-  if (NULL == tree) {
+void purge_shallow_payload(node *n) {
+  if (NULL == n) {
     return;
   }
-  if (NULL != tree->left) {
-    purge_shallow_payload(tree->left);
+  if (NULL != n->left) {
+    purge_shallow_payload(n->left);
   }
-  if (NULL != tree->right) {
-    purge_shallow_payload(tree->right);
+  if (NULL != n->right) {
+    purge_shallow_payload(n->right);
   }
-  if (NULL != tree->payload) {
-    free(tree->payload);
-    tree->payload = NULL;
+  if (NULL != n->payload) {
+    free(n->payload);
+    n->payload = NULL;
   }
 }
 
@@ -196,7 +204,7 @@ void quicksort(char *str, size_t p, size_t r) {
   }
   size_t q = partition(str, p, r);
   quicksort(str, p, q - 1);
-  quicksort(str, p, q + 1); 
+  quicksort(str, q + 1, r);
 }
 
 size_t partition(char *str, size_t p, size_t r) {
@@ -217,16 +225,19 @@ size_t partition(char *str, size_t p, size_t r) {
   return i;
 }
 
-struct pair **get_pairs(bst *tree, bst *(pair_choosing_func)(bst*)) {
-  struct pair **pairs = allocate_pairs(tree); 
+struct pair **get_pairs(node *n, node *(pair_choosing_func)(node*)) {
+  struct pair **pairs = allocate_pairs(n); 
   size_t *acc_counter = (size_t*) malloc(sizeof(size_t));
-  fill_pairs(tree, pairs, acc_counter, pair_choosing_func);
+  *acc_counter = 0;
+  fill_pairs(n, pairs, acc_counter, pair_choosing_func);
   free(acc_counter);
   return pairs;
 }
 
-struct pair **allocate_pairs(bst *tree) {
+struct pair **allocate_pairs(node *n) {
   size_t *nodes_count = (size_t*) malloc(sizeof(size_t));
+  *nodes_count = 0;
+  count_nodes(n, nodes_count);
   struct pair **pairs 
             = (struct pair**) malloc(sizeof(struct pair) * (*nodes_count + 1));
   pairs[*nodes_count] = NULL;
@@ -234,17 +245,20 @@ struct pair **allocate_pairs(bst *tree) {
   return pairs;
 }
 
-void fill_pairs(bst *tree, struct pair **allocated_nodes,
-                size_t *acc_counter, bst* (*pair_choosing_func)(bst*)) {
-  if (NULL == tree) {
+void fill_pairs(node *n, struct pair **allocated_nodes,
+                size_t *acc_counter, node* (*pair_choosing_func)(node*)) {
+  if (NULL == n) {
     return;
   }
-  allocated_nodes[*acc_counter]->node = tree;
-  allocated_nodes[*acc_counter]->paired_node = pair_choosing_func(tree);
+  struct pair *current_pair = (struct pair *) malloc(sizeof(struct pair));
+  current_pair->leading_node = n;
+  current_pair->paired_node = pair_choosing_func(n);
+  allocated_nodes[*acc_counter] = current_pair;
   (*acc_counter)++;
-  fill_pairs(tree->left, allocated_nodes, acc_counter, pair_choosing_func);
-  fill_pairs(tree->right, allocated_nodes, acc_counter, pair_choosing_func);
+  fill_pairs(n->left, allocated_nodes, acc_counter, pair_choosing_func);
+  fill_pairs(n->right, allocated_nodes, acc_counter, pair_choosing_func);
 }
+
 // ****************************************************************************
 // End of static functions section
 // ****************************************************************************

@@ -2,30 +2,30 @@
 #define FUNCTIONAL_DATASTRUCTURES_BST_H
 
 typedef struct _bst bst;
-enum color;
-
-enum color {
-  RED,
-  BLACK
-};
+typedef struct _node node;
 
 struct _bst {
-  char *id;
-  bst *parent;
-  bst *left, *right;
-  void *payload;
-  enum color color;
+  node *root;
 };
 
-bst *bst_create(char *id, void *payload);
-bst *bst_search(char *id, bst *tree);
-bst *bst_minimum(bst *tree);
-bst *bst_maximum(bst *tree);
-bst *bst_predecessor(bst *tree);
-bst *bst_successor(bst *tree);
-void bst_insert(bst *tree, bst *dest_tree);
+struct _node {
+  char *id;
+  node *parent;
+  node *left, *right;
+  void *payload;
+};
+
+bst *bst_create(void);
+node *bst_node_create(char *id, void *payload);
+node *bst_search(char *id, bst *tree);
+node *bst_minimum(node *tree);
+node *bst_maximum(node *tree);
+node *bst_predecessor(node *n);
+node *bst_successor(node *n);
+void bst_insert(node *n, bst *dest_tree);
 void bst_delete(bst *tree, char *id);
-int bst_compare_nodes(bst *first, bst *second);
+int bst_compare_nodes(node *first, node *second);
 void bst_free(bst *tree);
+void bst_node_free(node*);
 
 #endif
