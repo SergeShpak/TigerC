@@ -57,6 +57,7 @@ void test_bst_free_PayloadIsAccessibleAfterNodeIsFreed(void) {
   TEST_ASSERT_NOT_NULL(payload);
   TEST_ASSERT_EQUAL(1, payload->num);
   free(payload);
+  free(id);
 }
 
 void test_bst_insert_InsertsInCorrectOrder(void) {

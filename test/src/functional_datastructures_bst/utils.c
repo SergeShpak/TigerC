@@ -70,6 +70,7 @@ void purge_bst(node *n) {
   if (NULL != n->id) {
     free(n->id);
   }
+  free(n);
   return;
 }
 
@@ -160,7 +161,7 @@ char *allocate_str(char *str_to_duplicate) {
   int len = strlen(str_to_duplicate);
   char *str = (char*) malloc(sizeof(char) * (len + 1));
   strncpy(str, str_to_duplicate, len);
-  str[len + 1] = '\0';
+  str[len] = '\0';
   return str;
 }
 
