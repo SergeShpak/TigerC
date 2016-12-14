@@ -10,3 +10,4 @@ test/tests/
 **/.idea
 cmake-build-debug/
 no_git_please/
+lex.yy.c
