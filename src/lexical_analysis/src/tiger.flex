@@ -1,8 +1,11 @@
 %{
 #include <stdio.h>
 #include <tokens.h>
+#include <string.h>
 
 int char_pos = 1;
+int line_num = 1;
+int comment_caller = 0;
 
 /**
 * \brief Used by (F)LEX to decide whether the tokenization is finished
@@ -19,8 +22,27 @@ int yywrap(void) {
     return 1;
 }
 %}
+
+/*  exclusive condition that is activated when a comment openning token 
+ *  is encountered 
+ */
+%x S_COMMENT 
+%x S_STRING
+%x S_COLON
+
 %%
 
-"var"   {return VAR;}
-\n      {return 1;}
-.       {return 1;}
+"\""            { comment_caller = INITIAL; BEGIN(S_STRING); return STRING; }
+":"             { comment_caller = INITIAL; BEGIN(S_COLON); return IGNORE; }
+<S_COLON>" "    { BEGIN(comment_caller); return COLON; }
+<S_COLON>"="    { BEGIN(comment_caller); return ASSIGN; } 
+<S_STRING>"\""  { BEGIN(comment_caller); return IGNORE; }
+"/*"            { comment_caller = INITIAL; BEGIN(S_COMMENT); return IGNORE; }
+"let"           { char_pos += yyleng; return LET; }
+"var"           { char_pos += yyleng; return VAR; }
+"type"          { char_pos += yyleng; return TYPE; }
+[a-zA-Z0-9]*    { char_pos += yyleng; return IGNORE; }
+<*>\n           { line_num++; char_pos = 1; return IGNORE; }
+.               { char_pos += yyleng; return -1;}
+<S_COMMENT>"*/" { BEGIN(comment_caller); }
+<S_COMMENT>"*"  { return IGNORE; }

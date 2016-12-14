@@ -6,12 +6,14 @@ set(INCLUDE_ROOT ../../include)
 set(FLEX_SCANNER_BUILD_TARGET flex_build_scanner)
 set(FLEX_FILE_NAME "tiger.flex")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -Wall")
 
 project(${PROJECT_NAME})
 
 include_directories(${INCLUDE_ROOT}/${DIR_NAME})
 file(GLOB PROJECT_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/*.c)
+
+message("++ ${PROJECT_SRC}")
 
 add_custom_target(${FLEX_SCANNER_BUILD_TARGET}
                     COMMAND flex -o${CMAKE_CURRENT_SOURCE_DIR}/src/lex.yy.c ${CMAKE_CURRENT_SOURCE_DIR}/src/${FLEX_FILE_NAME})
