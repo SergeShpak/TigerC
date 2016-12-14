@@ -9,4 +9,4 @@ test/tests/
 .idea
 **/.idea
 cmake-build-debug/
-**/no_git_please
+no_git_please/
