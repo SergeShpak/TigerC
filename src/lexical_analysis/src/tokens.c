@@ -6,7 +6,7 @@ const char * const get_token_string(int token) {
                       "GT", "GE", "AND", "OR", "ASSIGN", "ARRAY", "IF", "THEN", 
                       "ELSE", "WHILE", "FOR", "TO", "DO", "LET", "IN", "END", 
                       "OF", "BREAK", "NIL", "FUNCTION", "VAR", "TYPE", "ID", 
-                      "LBRACK", "RBRACK" };
+                      "LBRACK", "RBRACK", "SP"};
 
   return tokens_names[token - 257];
 }

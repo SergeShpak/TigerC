@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#include "scanner_utils.h"
+
 int lex_error(char *msg);
 int lex_token_error(char *msg_template, int line_num, int char_pos);
 int lex_log(char *msg, FILE*);
@@ -16,6 +18,9 @@ int lex_log(char *msg, FILE*);
 FILE *fopen_err(char *file, char *mode);
 
 int dump_token_to_file(char *file, int tok);
+int dump_string_to_file(char *file_name, YYSTYPE val);
+int dump_num_to_file(char *file_name, YYSTYPE val);
+int dump_id_to_file(char *file_name, YYSTYPE val);
 
 /**
  * \brief Writes a given string to the end of the file.

@@ -48,6 +48,9 @@ int is_token_valid(int token);
 #define ID        297
 #define LBRACK    298
 #define RBRACK    299
-#define IGNORE    300
+#define SPACE     300
+#define IGNORE    301
+#define STR_VAL   302
+#define NUM_VAL   303
 
 #endif

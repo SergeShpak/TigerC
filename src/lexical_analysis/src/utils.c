@@ -4,11 +4,13 @@
 
 #include <utils.h>
 #include <tokens.h>
+#include <scanner_utils.h>
 
 /**
  * Returns a heap-allocated message that can contain the passed file name.
  */
 static char *get_file_error_message(char *msg_template, char *file_name);
+static size_t number_of_symb(int num);
 
 int lex_error(char *msg) {
   int res = fprintf(stderr, "ERROR: %s\n", msg);
@@ -74,6 +76,36 @@ int dump_token_to_file(char *file_name, int token) {
   return 0;
 }
 
+int dump_string_to_file(char *file_name, YYSTYPE val) {
+  char *text = val.sval;
+  size_t str_len = strlen(text);
+  char *str_repr = (char*) malloc(sizeof(char) * (str_len + 2));
+  sprintf(str_repr, "%s ", text);
+  dump_to_file(file_name, str_repr);
+  free(str_repr);
+  return 0;
+}
+
+int dump_num_to_file(char *file_name, YYSTYPE val) {
+  int num = yylval.ival;
+  size_t num_of_digits = number_of_symb(num);
+  char *digit_repr = (char*) malloc(sizeof(char) * (num_of_digits + 6));
+  sprintf(digit_repr, "NUM %d ", num);
+  dump_to_file(file_name, digit_repr);
+  free(digit_repr);
+  return 0;
+}
+
+int dump_id_to_file(char *file_name, YYSTYPE val) {
+  char *name = yylval.sval; 
+  size_t str_len = strlen(name);
+  char *id_repr = (char*) malloc(sizeof(char) * (str_len + 5));
+  sprintf(id_repr, "ID %s ", name);
+  dump_to_file(file_name, id_repr);
+  free(id_repr);
+  return 0;
+}
+
 int dump_to_file(char *file_name, char *str) {
   int status = 0;
   FILE *file = fopen_err(file_name, "a+");
@@ -101,6 +133,19 @@ char *get_file_error_message(char *msg_template, char *file_name) {
   char *msg = (char*) malloc(sizeof(char) * (msg_size + 1));
   sprintf(msg, msg_template, file_name);
   return msg;
+}
+
+size_t number_of_symb(int num) {
+  size_t len = 0;
+  if (0 == num) {
+    return num; 
+  }
+  int curr_num = num;
+  while(0 != curr_num) {
+    curr_num /= 10;
+    len++; 
+  }
+  return len;
 }
 
 /******************************************************************************
