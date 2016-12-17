@@ -37,7 +37,14 @@ int lex_error(char *msg);
 int lex_token_error(char *explanation, int line_num, int char_pos);
 
 /**
- * \brief Prints a given 
+ * \brief Prints a message to the opened file.
+ *
+ * Prints a given message to the opened file.
+ *
+ * \param[in] msg A message to be printed.
+ * \param[in] f   A pointer to the destination file.
+ *
+ * \returns 0   If message was printed succesfully; -1 otherwise.
  */
 int lex_log(char *msg, FILE*);
 
@@ -46,20 +53,28 @@ int lex_log(char *msg, FILE*);
  *
  * Tries to open a file. If the file opens succesfully, returns a FILE pointer. 
  * Otherwise, outputs an error message to stderr and returns NULL.
+ *
+ * \param[in] file  Name of file to open.
+ * \param[in] mode  File open mode.
+ *
+ * \returns If file opens succesfully a pointer to FILE structure. Otherwise, 
+ * an error message is printed to stderr and NULL is returned.
  */
 FILE *fopen_err(char *file, char *mode);
 
-int dump_token_to_file(char *file, int tok);
-int dump_string_to_file(char *file_name, YYSTYPE val);
-int dump_num_to_file(char *file_name, YYSTYPE val);
-int dump_id_to_file(char *file_name, YYSTYPE val);
-
 /**
- * \brief Writes a given string to the end of the file.
+ * \brief Returns a string composed by insertion of a string into a given 
+ * template.
  *
- * Writes a given string to the end of the file. On success returns 0. 
- * Otherwise outputs an error message to stderr and returns a value different from 0.
+ * A wrapper around sprintf function. Returns a newly allocated string 
+ * composed by inserting a given string into a provided template.
+ *
+ * \param[in] result_template A template that contains a singles %s token.
+ * \param[in] str String that will be inserted into the %s token position.
+ *
+ * \returns Pointer to a newly allocated string. If an error occurred returns
+ * a NULL pointer.
  */
-int dump_to_file(char *file_name, char *str);
+char *insert_into_string(char *result_template, char *str);
 
 #endif

@@ -6,11 +6,7 @@
 #include <tokens.h>
 #include <scanner_utils.h>
 
-/**
- * Returns a heap-allocated message that can contain the passed file name.
- */
-static char *get_file_error_message(char *msg_template, char *file_name);
-static size_t number_of_symb(int num);
+
 
 int lex_error(char *msg) {
   int res = fprintf(stderr, "ERROR: %s\n", msg);
@@ -59,95 +55,19 @@ FILE *fopen_err(char *file, char *mode) {
 
   /* The part where we display the error message */
   char *msg_template = "File %s cannot be opened.";
-  char *msg = get_file_error_message(msg_template, file);
+  char *msg = insert_into_string(msg_template, file);
   lex_error(msg);
   free(msg);
   msg = NULL;
   return result;
 }
 
-int dump_token_to_file(char *file_name, int token) {
-  const char * const token_str = get_token_string(token);
-  size_t token_str_len = strlen(token_str);
-  char *token_repr = (char *) malloc(sizeof(char) * (token_str_len + 2));
-  sprintf(token_repr, "%s ", token_str);
-  dump_to_file(file_name, token_repr);
-  free(token_repr);
-  return 0;
-}
-
-int dump_string_to_file(char *file_name, YYSTYPE val) {
-  char *text = val.sval;
-  size_t str_len = strlen(text);
-  char *str_repr = (char*) malloc(sizeof(char) * (str_len + 2));
-  sprintf(str_repr, "%s ", text);
-  dump_to_file(file_name, str_repr);
-  free(str_repr);
-  return 0;
-}
-
-int dump_num_to_file(char *file_name, YYSTYPE val) {
-  int num = yylval.ival;
-  size_t num_of_digits = number_of_symb(num);
-  char *digit_repr = (char*) malloc(sizeof(char) * (num_of_digits + 6));
-  sprintf(digit_repr, "NUM %d ", num);
-  dump_to_file(file_name, digit_repr);
-  free(digit_repr);
-  return 0;
-}
-
-int dump_id_to_file(char *file_name, YYSTYPE val) {
-  char *name = yylval.sval; 
-  size_t str_len = strlen(name);
-  char *id_repr = (char*) malloc(sizeof(char) * (str_len + 5));
-  sprintf(id_repr, "ID %s ", name);
-  dump_to_file(file_name, id_repr);
-  free(id_repr);
-  return 0;
-}
-
-int dump_to_file(char *file_name, char *str) {
-  int status = 0;
-  FILE *file = fopen_err(file_name, "a+");
-  if (NULL == file) {
-    return 1;
-  }
-  int write_res = lex_log(str, file);
-  if (write_res) {
-    status = 1;
-    char *msg_template = "Could not write to %s";
-    char *err_msg = get_file_error_message(msg_template, file_name);
-    lex_error(err_msg);
-    free(err_msg);
-  }
-  fclose(file);
-  return status;
-}
-
-/******************************************************************************
- * Static functions
- * ***************************************************************************/
-
-char *get_file_error_message(char *msg_template, char *file_name) {
-  size_t msg_size = strlen(msg_template) + strlen(file_name);
+char *insert_into_string(char *result_template, char *str) {
+  size_t msg_size = strlen(result_template) + strlen(str);
   char *msg = (char*) malloc(sizeof(char) * (msg_size + 1));
-  sprintf(msg, msg_template, file_name);
-  return msg;
-}
-
-size_t number_of_symb(int num) {
-  size_t len = 0;
-  if (0 == num) {
-    return num; 
+  if (NULL == msg) {
+    return NULL;
   }
-  int curr_num = num;
-  while(0 != curr_num) {
-    curr_num /= 10;
-    len++; 
-  }
-  return len;
+  sprintf(msg, result_template, str);
+  return msg; 
 }
-
-/******************************************************************************
- * End of static functions section
- * ***************************************************************************/
