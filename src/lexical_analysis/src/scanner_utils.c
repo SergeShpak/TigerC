@@ -12,10 +12,14 @@
 static char *get_file_error_message(char *msg_template, char *file_name);
 static size_t number_of_symb(int num);
 
+// TODO: finish status checking
 int dump_token_to_file(char *file_name, int token) {
   const char * const token_str = get_token_string(token);
   size_t token_str_len = strlen(token_str);
   char *token_repr = (char *) malloc(sizeof(char) * (token_str_len + 1));
+  if (NULL == token_repr) {
+    return -1; 
+  }
   sprintf(token_repr, "%s ", token_str);
   dump_to_file(file_name, token_repr);
   free(token_repr);

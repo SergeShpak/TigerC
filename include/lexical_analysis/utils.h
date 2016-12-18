@@ -12,8 +12,8 @@
  * defined inside the function.
  *
  * \param[in] msg The memory to be output.
- * \retval 0  String was ouput succesfully.
- * \retval -1 String could not be output.
+ * \retval 0  String was printed succesfully.
+ * \retval -1 String could not be printed.
  */
 int lex_error(char *msg);
 
