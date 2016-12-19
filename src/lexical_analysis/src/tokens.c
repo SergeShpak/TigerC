@@ -1,4 +1,11 @@
+#include <stddef.h>
+
+#include <tokens.h>
+
 const char * const get_token_string(int token) {
+  if (!is_token_valid(token)) {
+    return NULL;
+  }
   static const char * const tokens_names[] = 
                     { "STRING", "INT", "COMMA", "SEMICOLON", "COLON", 
                       "LPAREN", "RPAREN", "LBRACE", "RBRACE", "DOT", "PLUS", 

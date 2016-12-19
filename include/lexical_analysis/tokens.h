@@ -1,7 +1,25 @@
 #ifndef TIGER_LEX_ANALYSIS_TOKENS_H
 #define TIGER_LEX_ANALYSIS_TOKENS_H
 
+/*
+ * \brief Returns a string representation of a given token.
+ *
+ * Returns a string representation of a token as an immutable string if the
+ * given token is valid.
+ *
+ * \returns String representation of the given token if the token is valid.
+ * Otherwise, returns NULL.
+ */
 const char * const get_token_string(int token);
+
+/*
+ * \brief Checks if the token is valid.
+ *
+ * Checks if the token is valid by verifying if its value lies in the valid
+ * range.
+ *
+ * \returns A non-zero value if the token is valid; a zero otherwise.
+ */
 int is_token_valid(int token);
 
 // token values returned by the scanner
