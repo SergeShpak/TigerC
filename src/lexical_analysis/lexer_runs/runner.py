@@ -34,7 +34,7 @@ def main():
         strings_to_write = []
         if (not out and not err):
             continue
-        strings_to_write.append("File: " + f)
+        strings_to_write.append("File: " + f + "\n")
         if (out):
             strings_to_write.append("Out: \n" + out)
         if (err):

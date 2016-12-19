@@ -30,7 +30,7 @@ int dump_string_to_file(char *file_name, YYSTYPE val) {
   char *text = val.sval;
   size_t str_len = strlen(text);
   char *str_repr = (char*) malloc(sizeof(char) * (str_len + 1));
-  sprintf(str_repr, "%s ", text);
+  sprintf(str_repr, "STRVAL %%%s%% ", text);
   dump_to_file(file_name, str_repr);
   free(str_repr);
   return -1;
@@ -40,7 +40,7 @@ int dump_num_to_file(char *file_name, YYSTYPE val) {
   int num = yylval.ival;
   size_t num_of_digits = number_of_symb(num);
   char *digit_repr = (char*) malloc(sizeof(char) * (num_of_digits + 5));
-  sprintf(digit_repr, "NUM %d ", num);
+  sprintf(digit_repr, "NUM %%%d%% ", num);
   dump_to_file(file_name, digit_repr);
   free(digit_repr);
   return -1;

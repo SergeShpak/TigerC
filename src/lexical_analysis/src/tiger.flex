@@ -18,6 +18,11 @@
                                             return TOK; \
                                         } while(0)
 
+#define RETURN_RESERVED(TOK)    do { \
+                                    yyless(yyleng - 1);  \
+                                    RETURN_TOK(TOK); \
+                                } while(0)
+
 extern YYSTYPE yylval;
 
 int char_pos = 1;
@@ -39,50 +44,66 @@ int yywrap(void) {
     char_pos = 1;
     return 1;
 }
+
 %}
 
 /*  exclusive condition that is activated when a comment openning token 
  *  is encountered 
  */
-%x S_COMMENT 
+%x S_COMMENT
 %x S_STRING
 %s S_BRACKET
 %s S_PAREN
 %s S_BRACE
 
+DELIM       [ \t\n]+
+VAR_SYMB    [a-zA-Z_]
+
 
 %%
 
-<S_STRING>"\""          { LEAVE_STATE(STRING); }
+<S_COMMENT>"*/"         { LEAVE_STATE(IGNORE); }
+<S_COMMENT>[^"*/"]*     { RETURN_TOK(IGNORE); }
+<S_STRING>"\""          { LEAVE_STATE(IGNORE); }
 <S_STRING>[^"]*         { yylval.sval = yytext; return STR_VAL; }
 <S_BRACE>"}"            { LEAVE_STATE(RBRACE); }
 <S_BRACKET>"]"          { LEAVE_STATE(RBRACK); }
-<S_BRACE>")"            { LEAVE_STATE(RPAREN); }
+<S_PAREN>")"            { LEAVE_STATE(RPAREN); }
 [0-9]*                  { yylval.ival = atoi(yytext); return NUM_VAL; }
-<S_COMMENT>"*/"         { LEAVE_STATE(IGNORE); }
-"\""                    { ENTER_STATE(S_STRING, STRING); }
 ":="                    { RETURN_TOK(ASSIGN); }
 ":"                     { RETURN_TOK(COLON); }
 "{"                     { ENTER_STATE(S_BRACE, LBRACE); }
 "["                     { ENTER_STATE(S_BRACKET, LBRACK); }
 "("                     { ENTER_STATE(S_PAREN, LPAREN); }
 "/*"                    { ENTER_STATE(S_COMMENT, IGNORE); }
-"let"                   { RETURN_TOK(LET); }
-"var"                   { RETURN_TOK(VAR); }
-"type"                  { RETURN_TOK(TYPE); }
-"of"                    { RETURN_TOK(OF); }
-"array"                 { RETURN_TOK(ARRAY); }
-"in"                    { RETURN_TOK(IN); }
-"int"                   { RETURN_TOK(INT); }
-"end"                   { RETURN_TOK(END); }
+"\""                    { ENTER_STATE(S_STRING, IGNORE); }
+string[^{VAR_SYMB}]     { RETURN_RESERVED(STRING); }
+let[^{VAR_SYMB}]           { RETURN_RESERVED(LET); }
+var[^{VAR_SYMB}]           { RETURN_RESERVED(VAR); }
+type[^{VAR_SYMB}]          { RETURN_RESERVED(TYPE); }        
+of[^{VAR_SYMB}]            { RETURN_RESERVED(OF); }        
+array[^{VAR_SYMB}]         { RETURN_RESERVED(ARRAY); }        
+in[^{VAR_SYMB}]            { RETURN_RESERVED(IN); }        
+int[^{VAR_SYMB}]           { RETURN_RESERVED(INT); }        
+end[^{VAR_SYMB}]           { RETURN_RESERVED(END); }        
+while[^{VAR_SYMB}]         { RETURN_RESERVED(WHILE); }        
+do[^{VAR_SYMB}]            { RETURN_RESERVED(DO); }        
+function[^{VAR_SYMB}]      { RETURN_RESERVED(FUNCTION); }        
 "+"                     { RETURN_TOK(PLUS); }
 "-"                     { RETURN_TOK(MINUS); }
 "*"                     { RETURN_TOK(TIMES); }
 "/"                     { RETURN_TOK(DIVIDE); } 
 ";"                     { RETURN_TOK(SEMICOLON); }
 "="                     { RETURN_TOK(EQ); }
-[a-zA-Z][a-zA-Z0-9]*    { yylval.sval = yytext; return ID; }
-[ \t]+                  { RETURN_TOK(SPACE); }
+"<"                     { RETURN_TOK(LT); }
+"<="                    { RETURN_TOK(LE); } 
+">"                     { RETURN_TOK(GT); }
+">="                    { RETURN_TOK(GE); }
+"&"                     { RETURN_TOK(AND); }
+"|"                     { RETURN_TOK(OR); }
+","                     { RETURN_TOK(COMMA); }
+"."                     { RETURN_TOK(DOT); }
+[a-zA-Z_][a-zA-Z_0-9]*    { yylval.sval = yytext; return ID; }
+[ \t]+                  { RETURN_TOK(IGNORE); }
 <*>\n                   { line_num++; char_pos = 1; return IGNORE; }
 .                       { char_pos += yyleng; return -1;}
-<S_COMMENT>[^(*/)]*   { return IGNORE; }
