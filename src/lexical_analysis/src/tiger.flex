@@ -6,22 +6,22 @@
 #include <tokens.h>
 #include <scanner_utils.h>
 
-#define RETURN_TOK(TOK)         char_pos += yyleng; return TOK; 
+#define RETURN_TOK(TOK)             char_pos += yyleng; return TOK; 
 
-#define LEAVE_STATE(TOK)        current_state = comment_caller; \
-                                BEGIN(comment_caller); return TOK;
+#define LEAVE_STATE(TOK)            current_state = comment_caller; \
+                                    BEGIN(comment_caller); return TOK;
 
-#define ENTER_STATE(STATE, TOK)         do { \
-                                            comment_caller = current_state; \
-                                            current_state = STATE; \
-                                            BEGIN(STATE); \
-                                            return TOK; \
-                                        } while(0)
+#define ENTER_STATE(STATE, TOK)     do { \
+                                        comment_caller = current_state; \
+                                        current_state = STATE; \
+                                        BEGIN(STATE); \
+                                        return TOK; \
+                                    } while(0)
 
-#define RETURN_RESERVED(TOK)    do { \
-                                    yyless(yyleng - 1);  \
-                                    RETURN_TOK(TOK); \
-                                } while(0)
+#define RETURN_RESERVED(TOK)        do { \
+                                        yyless(yyleng - 1);  \
+                                        RETURN_TOK(TOK); \
+                                    } while(0)
 
 extern YYSTYPE yylval;
 
@@ -47,9 +47,6 @@ int yywrap(void) {
 
 %}
 
-/*  exclusive condition that is activated when a comment openning token 
- *  is encountered 
- */
 %x S_COMMENT
 %x S_STRING
 %s S_BRACKET
@@ -78,17 +75,17 @@ VAR_SYMB    [a-zA-Z_]
 "/*"                    { ENTER_STATE(S_COMMENT, IGNORE); }
 "\""                    { ENTER_STATE(S_STRING, IGNORE); }
 string[^{VAR_SYMB}]     { RETURN_RESERVED(STRING); }
-let[^{VAR_SYMB}]           { RETURN_RESERVED(LET); }
-var[^{VAR_SYMB}]           { RETURN_RESERVED(VAR); }
-type[^{VAR_SYMB}]          { RETURN_RESERVED(TYPE); }        
-of[^{VAR_SYMB}]            { RETURN_RESERVED(OF); }        
-array[^{VAR_SYMB}]         { RETURN_RESERVED(ARRAY); }        
-in[^{VAR_SYMB}]            { RETURN_RESERVED(IN); }        
-int[^{VAR_SYMB}]           { RETURN_RESERVED(INT); }        
-end[^{VAR_SYMB}]           { RETURN_RESERVED(END); }        
-while[^{VAR_SYMB}]         { RETURN_RESERVED(WHILE); }        
-do[^{VAR_SYMB}]            { RETURN_RESERVED(DO); }        
-function[^{VAR_SYMB}]      { RETURN_RESERVED(FUNCTION); }        
+let[^{VAR_SYMB}]        { RETURN_RESERVED(LET); }      
+var[^{VAR_SYMB}]        { RETURN_RESERVED(VAR); }        
+type[^{VAR_SYMB}]       { RETURN_RESERVED(TYPE); }           
+of[^{VAR_SYMB}]         { RETURN_RESERVED(OF); }           
+array[^{VAR_SYMB}]      { RETURN_RESERVED(ARRAY); }           
+in[^{VAR_SYMB}]         { RETURN_RESERVED(IN); }           
+int[^{VAR_SYMB}]        { RETURN_RESERVED(INT); }           
+end[^{VAR_SYMB}]        { RETURN_RESERVED(END); }           
+while[^{VAR_SYMB}]      { RETURN_RESERVED(WHILE); }           
+do[^{VAR_SYMB}]         { RETURN_RESERVED(DO); }           
+function[^{VAR_SYMB}]   { RETURN_RESERVED(FUNCTION); }           
 "+"                     { RETURN_TOK(PLUS); }
 "-"                     { RETURN_TOK(MINUS); }
 "*"                     { RETURN_TOK(TIMES); }
@@ -103,7 +100,7 @@ function[^{VAR_SYMB}]      { RETURN_RESERVED(FUNCTION); }
 "|"                     { RETURN_TOK(OR); }
 ","                     { RETURN_TOK(COMMA); }
 "."                     { RETURN_TOK(DOT); }
-[a-zA-Z_][a-zA-Z_0-9]*    { yylval.sval = yytext; return ID; }
+[a-zA-Z_][a-zA-Z_0-9]*  { yylval.sval = yytext; return ID; }
 [ \t]+                  { RETURN_TOK(IGNORE); }
 <*>\n                   { line_num++; char_pos = 1; return IGNORE; }
 .                       { char_pos += yyleng; return -1;}
