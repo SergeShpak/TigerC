@@ -13,6 +13,9 @@ bst *bst_create(void) {
 
 node *bst_node_create(char *id, void *payload) {
   node *n = (node*) malloc(sizeof(node));
+  if (NULL == n) {
+    return NULL;
+  }
   n->id = id;
   n->payload = payload;
   n->parent = NULL;
