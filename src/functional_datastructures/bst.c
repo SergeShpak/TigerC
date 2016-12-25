@@ -170,10 +170,12 @@ void bst_node_free(node *n) {
     return;
   } 
   free(n);
-  n = NULL;
 }
 
 void bst_free(bst *tree) {
+  if (NULL == n) {
+    return;
+  }
   free(tree);
 }
 

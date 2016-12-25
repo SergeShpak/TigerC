@@ -121,10 +121,65 @@ node *bst_predecessor(node *n);
  *          is null, or when the given node has the maximal id in the tree.
  */
 node *bst_successor(node *n);
+
+/**
+ * \brief Inserts a given node into the tree.
+ *
+ * Inserts a given node into the tree. If there is already a node with the
+ * same id in the tree, inserts the given node as its right child.
+ *
+ * \param [in]  n Pointer to the node to insert.
+ * \param [in]  dest_tree Pointer to the binary search tree.
+ */
 void bst_insert(node *n, bst *dest_tree);
+
+/**
+ * \brief Delete a node from the tree.
+ *
+ * Deletes a node with the given id from the tree. If several nodes with the
+ * given id exist, delete the first found one. If no node with the given id
+ * is found in the tree, returns silently.
+ *
+ * \param [in]  tree  Binary search tree in which the node with the given id is
+ *                    searched for.
+ * \param [in]  id    Id of the target node.
+ */
 void bst_delete(bst *tree, char *id);
+
+/**
+ * \brief Compare two nodes by id's.
+ *
+ * Compares two given nodes by their id's. In fact, a wrapper around strcmp
+ * function.
+ *
+ * \param [in]  first   Pointer to the first node.
+ * \param [in]  second  Pointer to the second node.
+ *
+ * \returns Negative value, if the first node's id is lexicographically smaller
+ *          than the second node's id. Zero, if the id's are the same. Positive
+ *          value, if the first node's id is lexicographically greater than
+ *          the second node's id. 
+ */
 int bst_compare_nodes(node *first, node *second);
+
+/**
+ * \brief Frees the allocated bst.
+ *
+ * Frees the allocated binary search tree. If NULL is passed as the argument,
+ * returns silently.
+ *
+ * \param [in]  tree A pointer to the binary search tree to be freed.
+ */
 void bst_free(bst *tree);
-void bst_node_free(node*);
+
+/**
+ * \brief Frees the allocated bst node.
+ *
+ * Frees the allocated node of a binary search tree. If NULL is passed as the 
+ * argument, returns silently.
+ *
+ * \param [in]  n A pointer to the node of the binary search tree to be freed.
+ */
+void bst_node_free(node *n);
 
 #endif
