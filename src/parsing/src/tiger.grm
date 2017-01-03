@@ -1,0 +1,19 @@
+%union {
+    int pos;
+    int ival;
+    string sval;
+}
+
+%token <sval> ID STRING
+%token <ival> INT
+
+%token  COMMA SEMICOLON COLON LPAREN RPAREN LBRACE RBRACE DOT PLUS MINUS TIMES
+        DIVIDE EQ NEQ LT LE GT GE AND OR ASSIGN ARRAY IF THEN ELSE WHILE FOR TO
+        DO LET IN END OF BREAK NIL FUNCTION VAR TYPE LBRACK RBRACK SP
+
+%start  program
+
+%%
+
+program:    exp
+exp:        ID
